@@ -1,0 +1,45 @@
+---
+- name: "Premier Playbook"
+  hosts: all
+  vars:
+    path_file: "/home/ansible/"
+    path_directory: "/home/ansible/premier_playbook"
+  tasks:
+    - name: "Fabrication fichier test"
+      file:
+        path: "{{ path_file }}{{item}}"
+        state: touch
+      loop:
+        - test1.yml
+        - test2.yml
+      register: log_create
+#      tags: create
+
+    - name: "Affichage log create file"
+      debug:
+        var: log_create.results[{{item}}].dest
+      loop:
+        - 0
+        - 1
+
+    - name: "Fabrication dossier premier playbook"
+      file:
+        path: "{{ path_directory }}"
+        state: directory
+#      tags: create
+
+    - name: "Suppression fichier test"
+      file:
+        path: "{{path_file}}{{item}}"
+        state: absent
+      loop:
+        - test1.yml
+        - test2.yml
+#      tags: delete
+
+    - name: "Suppression dossier premier playbook"
+      file:
+        path: "{{path_directory}}"
+        state: absent
+#      tags: delete
+...

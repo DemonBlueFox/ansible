@@ -1,0 +1,43 @@
+---
+- name: "Installer docker"
+  hosts: "{{host_name}}"
+  become: yes
+  vars:
+    host_name: client2
+  tasks:
+    - name: "Update all" 
+      apt: 
+        upgrade: yes
+        update_cache: yes
+
+    - name: Install required system packages
+      become: yes
+      apt:
+        name: "{{item}}"
+        state: "latest"
+        update_cache: yes
+      loop: ['ca-certificates', 'curl', 'gnupg', 'lsb-release', 'git', 'wget']
+      when: ansible_distribution=='Debian'
+
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/debian/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/debian stretch stable
+        state: present
+
+    - name: Update apt and install docker-ce
+      apt: update_cache=yes name=docker-ce state=latest
+
+    - name: Generation fichier html
+      template:
+        src: "index.html.j2"
+        dest: "/home/ansible/index.html"
+
+    - name: Deploiement apache
+      shell: sudo docker run -d --name apache -p 8080:80 -v /home/ansible/index.html:/var/www/html httpd
+      tags: "docker"
+...

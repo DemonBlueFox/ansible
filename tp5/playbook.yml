@@ -1,0 +1,31 @@
+---
+- name: "Installer docker"
+  hosts: client2
+  become: yes
+  tasks:
+    - name: "Update all" 
+      apt: 
+        upgrade: yes
+        update_cache: yes
+
+    - name: Install required system packages
+      become: yes
+      apt:
+        name: "{{item}}"
+        state: "latest"
+        update_cache: yes
+      loop: ['ca-certificates', 'curl', 'gnupg', 'lsb-release']
+
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/debian/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/debian stretch stable
+        state: present
+
+    - name: Update apt and install docker-ce
+      apt: update_cache=yes name=docker-ce state=latest
+...
