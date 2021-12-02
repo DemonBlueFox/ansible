@@ -1,0 +1,6 @@
+---
+- name: "Install Wordpress"
+  hosts: client2
+  gather_fact: yes
+  vars:
+    

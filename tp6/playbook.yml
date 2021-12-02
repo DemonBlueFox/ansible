@@ -1,9 +1,9 @@
 ---
 - name: "Installer docker"
-  hosts: "{{host_name}}"
+  hosts: client1
   become: yes
   vars:
-    host_name: client2
+    host_name: client1
   tasks:
     - name: "Update all" 
       apt: 
@@ -17,16 +17,15 @@
         state: "latest"
         update_cache: yes
       loop: ['ca-certificates', 'curl', 'gnupg', 'lsb-release', 'git', 'wget']
-      when: ansible_distribution=='Debian'
 
     - name: Add Docker GPG apt Key
       apt_key:
-        url: https://download.docker.com/linux/debian/gpg
+        url: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
         state: present
 
     - name: Add Docker Repository
       apt_repository:
-        repo: deb [arch=amd64] https://download.docker.com/linux/debian stretch stable
+        repo: deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu
         state: present
 
     - name: Update apt and install docker-ce
